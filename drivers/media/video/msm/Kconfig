@@ -200,7 +200,7 @@ config S5K5CCAF
 	depends on MSM_CAMERA && !ARCH_MSM8X60 && !MSM_CAMERA_V4L2
 	default y
 	---help---
-	  LSI 3M Sensor with Autofocus	  
+	  LSI 3M Sensor with Autofocus
 	  
 config SR300PC20
         bool "Sensor sr300pc20 (3M)"
