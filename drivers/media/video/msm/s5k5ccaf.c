@@ -1475,7 +1475,7 @@ int s5k5ccaf_sensor_release(void)
 	/* up(&s5k5ccaf_sem); */
 
 #ifdef CONFIG_LOAD_FILE
-	s5k5ccaf_regs_table_exit();
+  s5k5ccaf_regs_table_exit();
 #endif
 
 	s5k5ccaf_set_power(0);
@@ -1483,7 +1483,7 @@ int s5k5ccaf_sensor_release(void)
 }
 
 static int s5k5ccaf_i2c_probe(struct i2c_client *client,
-			      const struct i2c_device_id *id)
+	                              const struct i2c_device_id *id)
 {
 	int rc = 0;
 
@@ -1503,39 +1503,37 @@ static int s5k5ccaf_i2c_probe(struct i2c_client *client,
 	s5k5ccaf_init_client(client);
 	s5k5ccaf_client = client;
 
-	CDBG("s5k5ccaf_probe succeeded!\n");
-
-	return 0;
+  CDBG("s5k5ccaf_probe succeeded!\n");
+  
+  return 0;
 
 probe_failure:
-	kfree(s5k5ccaf_sensorw);
-	s5k5ccaf_sensorw = NULL;
-	CDBG("s5k5ccaf_probe failed!\n");
-	return rc;
+  kfree(s5k5ccaf_sensorw);
+  s5k5ccaf_sensorw = NULL;
+  CDBG("s5k5ccaf_probe failed!\n");
+  return rc;
 }
 
 static const struct i2c_device_id s5k5ccaf_i2c_id[] = {
-	{"s5k5ccaf", 0},
-	{},
+  { "s5k5ccaf", 0},
+  { },
 };
 
 static struct i2c_driver s5k5ccaf_i2c_driver = {
-	.id_table = s5k5ccaf_i2c_id,
-	.probe = s5k5ccaf_i2c_probe,
-	.remove = __exit_p(s5k5ccaf_i2c_remove),
-	.driver = {
-		   .name = "s5k5ccaf",
-		   },
+  .id_table = s5k5ccaf_i2c_id,
+  .probe  = s5k5ccaf_i2c_probe,
+  .remove = __exit_p(s5k5ccaf_i2c_remove),
+  .driver = {
+    .name = "s5k5ccaf",
+  },
 };
 
 static int s5k5ccaf_sensor_probe(const struct msm_camera_sensor_info *info,
-				 struct msm_sensor_ctrl *s)
+				struct msm_sensor_ctrl *s)
 {
-/*	unsigned short read_value;*/
-	unsigned short id = 0;
-
+  int rc = i2c_add_driver(&s5k5ccaf_i2c_driver);
   if (rc < 0 || s5k5ccaf_client == NULL) {
-      rc = -ENOTSUPP;
+    rc = -ENOTSUPP;
     goto probe_done;
   }
 	s5k5ccaf_set_power(1);
@@ -1566,19 +1564,21 @@ probe_done:
 static int __s5k5ccaf_probe(struct platform_device *pdev)
 {
 	pr_info("############# S5K5CCAF probe ##############\n");
-	return msm_camera_drv_start(pdev, s5k5ccaf_sensor_probe);
+  return msm_camera_drv_start(pdev, s5k5ccaf_sensor_probe);
 }
 
 static struct platform_driver msm_camera_driver = {
   .probe = __s5k5ccaf_probe,
   .driver = {
     .name = "msm_camera_s5k5ccaf",
-		   },
+    .owner = THIS_MODULE,
+  },
 };
 
 static int __init s5k5ccaf_init(void)
 {
-	return platform_driver_register(&msm_camera_driver);
+  return platform_driver_register(&msm_camera_driver);
 }
 
 module_init(s5k5ccaf_init);
+

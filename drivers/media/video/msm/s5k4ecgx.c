@@ -222,12 +222,12 @@ s5k4ecgx_client->addr);
 CAMDRV_DEBUG("[PGH] on write func s5k4ecgx_client->adapter->nr :
 %d\n", s5k4ecgx_client->adapter->nr); */
 
-buf[0] = (subaddr >> 8);
-buf[1] = (subaddr & 0xFF);
-buf[2] = (val >> 8);
-buf[3] = (val & 0xFF);
+    buf[0] = (subaddr >> 8);
+    buf[1] = (subaddr & 0xFF);
+    buf[2] = (val >> 8);
+    buf[3] = (val & 0xFF);
 
-return i2c_transfer(s5k4ecgx_client->adapter, &msg, 1) == 1 ? 0 : -EIO;
+    return i2c_transfer(s5k4ecgx_client->adapter, &msg, 1) == 1 ? 0 : -EIO;
 }
 
 static int s5k4ecgx_sensor_write_list(const unsigned int *list, int size,
@@ -2727,23 +2727,25 @@ rv = device_create_file(&pdev->dev, &s5k4ecgx_antibanding_attr);
 if (rv)
 /*pr_info("<=EXT_CFG=> s5k4ecgx_probe() :
 device_create_file() is failed with %d", rv);*/
-#endif
+#endif        
 
-return msm_camera_drv_start(pdev, s5k4ecgx_sensor_probe);
+    return msm_camera_drv_start(pdev, s5k4ecgx_sensor_probe);
 }
 
 static struct platform_driver msm_camera_driver = {
-.probe = __s5k4ecgx_probe,
-.driver = {
-.name = "msm_camera_s5k4ecgx",
-//.owner = THIS_MODULE,
-},
+    .probe = __s5k4ecgx_probe,
+    .driver = {
+        .name = "msm_camera_s5k4ecgx",
+        .owner = THIS_MODULE,
+    },
 };
 
 static int __init s5k4ecgx_init(void)
 {
-return platform_driver_register(&msm_camera_driver);
+    return platform_driver_register(&msm_camera_driver);
 }
 
 module_init(s5k4ecgx_init);
+
+
 
