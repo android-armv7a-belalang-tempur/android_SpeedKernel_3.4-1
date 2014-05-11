@@ -32,7 +32,7 @@
 #include <linux/fsaxxxx_usbsw.h>
 #include <linux/atomic.h>
 #include <mach/msm_rpcrouter.h>
-#include <mach/msm_battery_trebon.h>
+#include <mach/msm_battery.h>
 #include <mach/bq27425_fuelguage.h>
 #include <mach/proc_comm.h>
 #include <mach/pmic.h>
