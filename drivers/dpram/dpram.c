@@ -36,7 +36,7 @@
 #include <asm/irq.h>
 #include <asm/io.h>
 
-#include <mach/msm_battery_trebon.h>
+#include <mach/msm_battery.h>
 #include <mach/hardware.h>
 #include <asm/uaccess.h>
 #include <mach/gpio.h>

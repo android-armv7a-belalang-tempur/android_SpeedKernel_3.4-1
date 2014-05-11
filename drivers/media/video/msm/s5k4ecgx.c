@@ -1,20 +1,20 @@
 /* Copyright (c) 2009, Code Aurora Forum. All rights reserved.
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License version 2 and
-* only version 2 as published by the Free Software Foundation.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-* 02110-1301, USA.
-*
-*/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ *
+ */
 
 #include <linux/slab.h>
 #include <linux/delay.h>
@@ -31,17 +31,16 @@
 #include <mach/vreg.h>
 #include <linux/io.h>
 
-#define SENSOR_DEBUG 0
+#define SENSOR_DEBUG    (0)
 
 #undef CONFIG_LOAD_FILE
-/*#define CONFIG_LOAD_FILE*/
-
+//#define CONFIG_LOAD_FILE
 #ifndef CONFIG_LOAD_FILE
 #define S5K4ECGX_USE_BURSTMODE
-/*#define WORKAROUND_FOR_LOW_SPEED_I2C*/
+//#define WORKAROUND_FOR_LOW_SPEED_I2C
 #endif
 
-#ifdef S5K4ECGX_USE_BURSTMODE
+#ifdef  S5K4ECGX_USE_BURSTMODE
 #define S5K4ECGX_WRITE_LIST(A) \
 {\
 if (s5k4ecgx_status.id == 0x0011)\
@@ -105,37 +104,37 @@ s5k4ecgx_sensor_write_list(A,\
 #define CHECK_AE_AWB_LOCK 0x00020000
 
 struct s5k4ecgx_status_struct {
-char camera_initailized;	/* 1 is not init a sensor */
-u32 need_configuration;
-char camera_mode;
-char effect;
+    char camera_initailized;//  1 is not init a sensor
+    u32 need_configuration;
+    char camera_mode;
+    char effect;
 char brightness;
-char contrast;
-char saturation;
-char sharpness;
-char whiteBalance;
-char iso;
-char auto_exposure;
-char scene;
+    char contrast;
+    char saturation;
+    char sharpness;
+    char whiteBalance;
+    char iso;
+    char auto_exposure;
+    char scene;
 char fps;
 char ae_lock;
 char awb_lock;
-char afmode;
-char afcanceled;
-char dtp;
-char snapshot_size;
-char preview_size;
-char zoom;
-char lowcap_on;
-char nightcap_on;
-char power_on;
-char camera_status;
+    char afmode;
+    char afcanceled;
+    char dtp;
+    char snapshot_size;
+    char preview_size;
+    char zoom;
+    char lowcap_on;
+    char nightcap_on;
+    char power_on;
+    char camera_status;
 int flash_status;	/* yjh_flash */
 char flash_mode;
-int jpeg_quality;
-int auto_contrast;
-int current_lux;
-unsigned short id;
+    int jpeg_quality;
+    int auto_contrast;
+    int current_lux;
+    unsigned short id;
 };
 
 static struct s5k4ecgx_status_struct s5k4ecgx_status;
@@ -154,7 +153,7 @@ static struct s5k4ecgx_work *s5k4ecgx_sensorw;
 static struct i2c_client *s5k4ecgx_client;
 
 struct s5k4ecgx_ctrl {
-const struct msm_camera_sensor_info *sensordata;
+    const struct msm_camera_sensor_info *sensordata;
 };
 
 static struct s5k4ecgx_ctrl *s5k4ecgx_ctrl;
@@ -163,7 +162,7 @@ static DECLARE_WAIT_QUEUE_HEAD(s5k4ecgx_wait_queue);
 DECLARE_MUTEX(s5k4ecgx_sem);
 
 /*=============================================================
-EXTERNAL DECLARATIONS
+    EXTERNAL DECLARATIONS
 ==============================================================*/
 /*struct s5k4ecgx_reg s5k4ecgx_regs;*/
 static int cpufreq_direct_set_policy(unsigned int cpu, const char *buf);
@@ -171,7 +170,6 @@ static int cpufreq_direct_set_policy(unsigned int cpu, const char *buf);
 static void pcam_msm_i2c_pwr_mgmt(struct i2c_adapter *adap, int on);
 #endif
 int *get_i2c_clock_addr(struct i2c_adapter *adap);
-
 /*=============================================================*/
 
 static int cam_hw_init(void);
@@ -179,45 +177,45 @@ static void cam_pw(int status);
 static int s5k4ecgx_sensor_init_probe(void);
 
 #ifdef CONFIG_LOAD_FILE
-static int s5k4ecgx_regs_table_write(char *name);
+    static int s5k4ecgx_regs_table_write(char *name);
 #endif
 
 static int s5k4ecgx_sensor_read(unsigned short subaddr, unsigned short *data)
 {
-int ret;
-unsigned char buf[2];
-struct i2c_msg msg = { s5k4ecgx_client->addr, 0, 2, buf };
-
-buf[0] = (subaddr >> 8);
-buf[1] = (subaddr & 0xFF);
-
+    int ret;
+    unsigned char buf[2];
+    struct i2c_msg msg = { s5k4ecgx_client->addr, 0, 2, buf };
+    
+    buf[0] = (subaddr >> 8);
+    buf[1] = (subaddr & 0xFF);
+    
 if (!s5k4ecgx_status.power_on)
 return -EIO;
+    
+    ret = i2c_transfer(s5k4ecgx_client->adapter, &msg, 1) == 1 ? 0 : -EIO;
+    if (ret == -EIO) 
+        goto error;
 
-ret = i2c_transfer(s5k4ecgx_client->adapter, &msg, 1) == 1 ? 0 : -EIO;
-if (ret == -EIO)
-goto error;
+    msg.flags = I2C_M_RD;
+    
+    ret = i2c_transfer(s5k4ecgx_client->adapter, &msg, 1) == 1 ? 0 : -EIO;
+    if (ret == -EIO) 
+        goto error;
 
-msg.flags = I2C_M_RD;
-
-ret = i2c_transfer(s5k4ecgx_client->adapter, &msg, 1) == 1 ? 0 : -EIO;
-if (ret == -EIO)
-goto error;
-
-*data = ((buf[0] << 8) | buf[1]);
-/* [Arun c]Data should be written in Little Endian in parallel mode;
+    *data = ((buf[0] << 8) | buf[1]);
+    /*  [Arun c]Data should be written in Little Endian in parallel mode; So there is no need for byte swapping here */
 So there is no need for byte swapping here */
 /*data = *(unsigned long *)(&buf); */
 error:
-return ret;
+    return ret;
 }
 
 static int s5k4ecgx_sensor_write(unsigned short subaddr, unsigned short val)
 {
-unsigned char buf[4];
-struct i2c_msg msg = { s5k4ecgx_client->addr, 0, 4, buf };
+    unsigned char buf[4];
+    struct i2c_msg msg = { s5k4ecgx_client->addr, 0, 4, buf };
 
-/*CAMDRV_DEBUG("[PGH] on write func s5k4ecgx_client->addr : %x\n",
+    //CAMDRV_DEBUG("[PGH] on write func s5k4ecgx_client->addr : %x\n", s5k4ecgx_client->addr);
 s5k4ecgx_client->addr);
 CAMDRV_DEBUG("[PGH] on write func s5k4ecgx_client->adapter->nr :
 %d\n", s5k4ecgx_client->adapter->nr); */
@@ -234,14 +232,14 @@ static int s5k4ecgx_sensor_write_list(const unsigned int *list, int size,
 char *name)
 {
 int ret = 0, i;
-unsigned short subaddr;
-unsigned short value;
+    unsigned short subaddr;
+    unsigned short value;
 
 if (!s5k4ecgx_status.power_on)
 return -EIO;
-
+    
 #ifdef CONFIG_LOAD_FILE
-ret = s5k4ecgx_regs_table_write(name);
+    ret = s5k4ecgx_regs_table_write(name);
 #else
 ("s5k4ecgx_sensor_write_list : %s start\n", name);
 
@@ -262,7 +260,7 @@ return -EIO;
 }
 CAMDRV_DEBUG("s5k4ecgx_sensor_write_list : %s end\n", name);
 #endif
-return ret;
+    return ret;
 }
 
 #ifdef S5K4ECGX_USE_BURSTMODE

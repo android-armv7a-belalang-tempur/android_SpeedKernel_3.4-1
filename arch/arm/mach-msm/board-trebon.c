@@ -44,7 +44,7 @@
 #include <linux/power_supply.h>
 #include <linux/regulator/consumer.h>
 #include <mach/rpc_pmapp.h>
-#include <mach/msm_battery_trebon.h>
+#include <mach/msm_battery.h>
 #include <linux/smsc911x.h>
 #include <linux/msm_adc.h>
 #include <linux/ion.h>
