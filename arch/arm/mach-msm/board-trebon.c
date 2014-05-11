@@ -167,6 +167,7 @@ enum {
 
 static void set_msm7x27a_micbias_state_reg5(bool state) { }
 static bool cur_state = false;
+static bool proximity_init;
 
 static void set_msm7x27a_micbias_state(bool state)
 {
@@ -1216,7 +1217,90 @@ static struct i2c_board_info cam_exp_i2c_info[] __initdata = {
 #ifdef CONFIG_PROXIMITY_SENSOR
 static int gp2a_power(bool on)
 {
-	gpio_tlmm_config(GPIO_CFG( 29, 0, GPIO_CFG_INPUT, GPIO_CFG_PULL_UP, GPIO_CFG_2MA),GPIO_CFG_ENABLE);
+/*
+	struct regulator *regulator;
+
+	ldo15_init_data.constraints.state_mem.enabled = on;
+	ldo15_init_data.constraints.state_mem.disabled = !on;
+
+	if (on) {
+		regulator = regulator_get(NULL, "vled");
+		if (IS_ERR(regulator))
+			return 0;
+		regulator_enable(regulator);
+		regulator_put(regulator);
+	} else {
+		regulator = regulator_get(NULL, "vled");
+		if (IS_ERR(regulator))
+			return 0;
+		if (regulator_is_enabled(regulator))
+			regulator_force_disable(regulator);
+		regulator_put(regulator);
+	}
+*/
+
+#if defined(CONFIG_MACH_TREBON)
+	int rc = 0;
+	if (board_hw_revision >= 0x06) {
+		if (proximity_init == false) {
+			pr_info("[GP2A] board hw revision %d\n",
+				board_hw_revision);
+			struct pm8xxx_gpio_rpc_cfg gpio_cfg = {
+				.gpio  = PMIC_GPIO_11,
+				.mode  = OUTPUT_ON,
+				.src_pull = PULL_UP_1_5uA,
+				.volt_src = PMIC_GPIO_VIN2,
+				.buf_config = CONFIG_CMOS,
+			};
+
+			rc = pmic_gpio_config(&gpio_cfg);
+			if (rc < 0) {
+				pr_err("%s pmic gpio config failed %d ",
+					__func__,
+					rc);
+			}
+			pmic_gpio_direction_output(PMIC_GPIO_11);
+			proximity_init = true;
+			gpio_tlmm_config(
+				GPIO_CFG(29, 0,
+					GPIO_CFG_INPUT,
+					GPIO_CFG_PULL_UP,
+					GPIO_CFG_2MA),
+				GPIO_CFG_ENABLE);
+		}
+
+		if (on) {
+			pr_err("%s pmic gpio set to 1 ",
+				__func__);
+			rc = pmic_gpio_set_value(PMIC_GPIO_11, 1);
+			if (rc < 0)
+				pr_err("%s pmic gpio set 1 error ",
+					__func__);
+		} else {
+			pr_err("%s pmic gpio set to 0 ",
+				__func__);
+			rc = pmic_gpio_set_value(PMIC_GPIO_11, 0);
+			if (rc < 0)
+				pr_err("%s pmic gpio set 0 error ",
+					__func__);
+		}
+	} else {
+		gpio_tlmm_config(
+			GPIO_CFG(29, 0,
+				GPIO_CFG_INPUT,
+				GPIO_CFG_PULL_UP,
+				GPIO_CFG_2MA),
+			GPIO_CFG_ENABLE);
+	}
+#else
+	gpio_tlmm_config(
+		GPIO_CFG(29, 0,
+			GPIO_CFG_INPUT,
+			GPIO_CFG_PULL_UP,
+			GPIO_CFG_2MA),
+		GPIO_CFG_ENABLE);
+#endif
+
 	return 0;
 }
 
@@ -1390,8 +1474,8 @@ void trebon_chg_connected(enum chg_type chgtype)
 			"CARKIT",
 			"DEDICATED CHARGER",
 			"INVALID"};
-	unsigned int data1 = 0;
-	unsigned int data2 = 0;
+	unsigned *data1 = NULL;
+	unsigned *data2 = NULL;
 	int ret = 0;
 
 	switch (chgtype) {
